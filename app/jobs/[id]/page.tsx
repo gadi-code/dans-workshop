@@ -2,6 +2,9 @@ import { cookies } from 'next/headers'
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { one } from '@/utils/one'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
+import { ErrorAlert, InfoAlert } from '@/components/ui/Alert'
 
 export default async function JobPage({
   params,
@@ -56,33 +59,24 @@ export default async function JobPage({
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-4 px-6 py-16">
-      <h1 className="text-2xl font-semibold">Job confirmed</h1>
+      <h1 className="text-2xl font-bold text-navy">Job confirmed</h1>
 
-      {message && (
-        <p className="rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:bg-blue-950 dark:text-blue-200">
-          {message}
-        </p>
-      )}
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
+      {message && <InfoAlert>{message}</InfoAlert>}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
 
-      <p>Provider: {provider?.display_name}</p>
-      <p>Price: R{(job.price_cents / 100).toFixed(2)}</p>
-      <p>Status: {job.status}</p>
-      <p>Payment: {isPaid ? 'Paid' : payment?.status ?? 'Not paid yet'}</p>
+      <Card className="flex flex-col gap-2 text-sm">
+        <p className="text-navy"><span className="text-slate">Provider:</span> {provider?.display_name}</p>
+        <p className="text-lg font-bold text-brand-500">R{(job.price_cents / 100).toFixed(2)}</p>
+        <p className="text-navy"><span className="text-slate">Status:</span> {job.status}</p>
+        <p className="text-navy"><span className="text-slate">Payment:</span> {isPaid ? 'Paid' : payment?.status ?? 'Not paid yet'}</p>
+      </Card>
 
       {isCustomer && !isPaid && (
         <form action="/api/payments/initialize" method="POST" className="w-fit">
           <input type="hidden" name="jobId" value={job.id} />
-          <button
-            type="submit"
-            className="rounded-full bg-foreground px-6 py-3 font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-          >
+          <Button type="submit" className="px-8 py-3.5 text-base">
             Pay now
-          </button>
+          </Button>
         </form>
       )}
     </div>

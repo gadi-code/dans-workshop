@@ -1,5 +1,9 @@
 import Link from 'next/link'
 import { login } from '@/app/actions/auth'
+import Card from '@/components/ui/Card'
+import Field, { inputClasses } from '@/components/ui/Field'
+import Button from '@/components/ui/Button'
+import { ErrorAlert, InfoAlert } from '@/components/ui/Alert'
 
 export default async function LoginPage({
   searchParams,
@@ -10,49 +14,26 @@ export default async function LoginPage({
 
   return (
     <div className="mx-auto flex min-h-[70vh] w-full max-w-sm flex-col justify-center gap-6 px-4">
-      <h1 className="text-2xl font-semibold">Log in</h1>
+      <h1 className="text-2xl font-bold text-navy">Log in</h1>
 
-      {message && (
-        <p className="rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:bg-blue-950 dark:text-blue-200">
-          {message}
-        </p>
-      )}
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
+      {message && <InfoAlert>{message}</InfoAlert>}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
 
-      <form action={login} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          Email
-          <input
-            name="email"
-            type="email"
-            required
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Password
-          <input
-            name="password"
-            type="password"
-            required
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <button
-          type="submit"
-          className="rounded-full bg-foreground px-5 py-2 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-        >
-          Log in
-        </button>
-      </form>
+      <Card>
+        <form action={login} className="flex flex-col gap-4">
+          <Field label="Email">
+            <input name="email" type="email" required className={inputClasses} />
+          </Field>
+          <Field label="Password">
+            <input name="password" type="password" required className={inputClasses} />
+          </Field>
+          <Button type="submit">Log in</Button>
+        </form>
+      </Card>
 
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="text-sm text-slate">
         Don&apos;t have an account?{' '}
-        <Link href="/signup" className="font-medium underline">
+        <Link href="/signup" className="font-medium text-brand-500 hover:underline">
           Sign up
         </Link>
       </p>

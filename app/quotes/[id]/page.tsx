@@ -3,6 +3,9 @@ import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { acceptQuote } from '@/app/actions/quotes'
 import { one } from '@/utils/one'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
+import { ErrorAlert } from '@/components/ui/Alert'
 
 export default async function QuoteRequestPage({
   params,
@@ -47,48 +50,41 @@ export default async function QuoteRequestPage({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-12">
       <div>
-        <h1 className="text-2xl font-semibold">{categoryLabel} request</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">Status: {request.status}</p>
+        <h1 className="text-2xl font-bold text-navy">{categoryLabel} request</h1>
+        <p className="text-sm text-slate">Status: {request.status}</p>
       </div>
 
-      <p>{request.description}</p>
+      <p className="text-slate">{request.description}</p>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
 
       <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-medium">Quotes received</h2>
+        <h2 className="text-lg font-semibold text-navy">Quotes received</h2>
         {quotes && quotes.length > 0 ? (
           quotes.map((q) => {
             const name = one(
               q.providers as unknown as { display_name: string } | { display_name: string }[] | null,
             )?.display_name
             return (
-              <div key={q.id} className="rounded-lg border border-black/10 p-4 dark:border-white/20">
-                <p className="font-medium">{name}</p>
-                <p className="text-lg">R{(q.price_cents / 100).toFixed(2)}</p>
-                {q.message && <p className="text-sm">{q.message}</p>}
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Status: {q.status}</p>
+              <Card key={q.id}>
+                <p className="font-semibold text-navy">{name}</p>
+                <p className="text-lg font-bold text-brand-500">R{(q.price_cents / 100).toFixed(2)}</p>
+                {q.message && <p className="text-sm text-slate">{q.message}</p>}
+                <p className="text-sm text-slate">Status: {q.status}</p>
                 {q.status === 'pending' && request.status === 'open' && (
                   <form action={acceptQuote} className="mt-2">
                     <input type="hidden" name="quoteId" value={q.id} />
                     <input type="hidden" name="quoteRequestId" value={request.id} />
-                    <button
-                      type="submit"
-                      className="rounded-full bg-foreground px-4 py-1.5 text-sm text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-                    >
+                    <Button type="submit" className="px-4 py-1.5 text-xs">
                       Accept
-                    </button>
+                    </Button>
                   </form>
                 )}
-              </div>
+              </Card>
             )
           })
         ) : (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">No quotes yet.</p>
+          <p className="text-sm text-slate">No quotes yet.</p>
         )}
       </div>
     </div>

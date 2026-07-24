@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
+import Card from '@/components/ui/Card'
+import { SuccessAlert } from '@/components/ui/Alert'
 
 export default async function BrowsePage({
   searchParams,
@@ -58,12 +60,12 @@ export default async function BrowsePage({
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-12">
-      <h1 className="text-2xl font-semibold">Browse providers</h1>
+      <h1 className="text-2xl font-bold text-navy">Browse providers</h1>
 
       <div className="flex flex-wrap gap-2 text-sm">
         <Link
           href="/browse"
-          className={`rounded-full border px-3 py-1 ${!selectedCategory ? 'bg-foreground text-background' : 'border-black/10 dark:border-white/20'}`}
+          className={`rounded-full border px-3 py-1 font-medium transition-colors ${!selectedCategory ? 'border-brand-500 bg-brand-500 text-white' : 'border-border text-slate hover:bg-surface-tint'}`}
         >
           All
         </Link>
@@ -71,7 +73,7 @@ export default async function BrowsePage({
           <Link
             key={c.id}
             href={`/browse?category=${c.slug}`}
-            className={`rounded-full border px-3 py-1 ${selectedCategory?.id === c.id ? 'bg-foreground text-background' : 'border-black/10 dark:border-white/20'}`}
+            className={`rounded-full border px-3 py-1 font-medium transition-colors ${selectedCategory?.id === c.id ? 'border-brand-500 bg-brand-500 text-white' : 'border-border text-slate hover:bg-surface-tint'}`}
           >
             {c.name}
           </Link>
@@ -81,25 +83,25 @@ export default async function BrowsePage({
       {providers && providers.length > 0 ? (
         <ul className="flex flex-col gap-4">
           {providers.map((p) => (
-            <li key={p.id} className="rounded-lg border border-black/10 p-4 dark:border-white/20">
-              <Link href={`/providers/${p.id}`} className="font-medium underline">
+            <Card as="li" key={p.id}>
+              <Link href={`/providers/${p.id}`} className="font-semibold text-navy hover:text-brand-500">
                 {p.display_name}
               </Link>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="text-sm text-slate">
                 {p.provider_type === 'company' ? 'Company' : 'Individual'}
                 {p.city ? ` · ${p.city}` : ''}
               </p>
-              {p.description && <p className="mt-1 text-sm">{p.description}</p>}
+              {p.description && <p className="mt-1 text-sm text-slate">{p.description}</p>}
               {(friendHistoryByProvider.get(p.id) ?? 0) > 0 && (
-                <p className="mt-2 text-sm font-medium text-green-700 dark:text-green-400">
-                  A friend has used this provider
-                </p>
+                <div className="mt-3">
+                  <SuccessAlert>A friend has used this provider</SuccessAlert>
+                </div>
               )}
-            </li>
+            </Card>
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-slate">
           No providers found{selectedCategory ? ` for ${selectedCategory.name}` : ''} yet.
         </p>
       )}

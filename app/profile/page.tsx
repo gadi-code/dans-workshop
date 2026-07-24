@@ -3,6 +3,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { updateProfile } from '@/app/actions/profile'
+import Card from '@/components/ui/Card'
+import Field, { inputClasses } from '@/components/ui/Field'
+import Button from '@/components/ui/Button'
+import { ErrorAlert, InfoAlert } from '@/components/ui/Alert'
 
 export default async function ProfilePage({
   searchParams,
@@ -34,107 +38,65 @@ export default async function ProfilePage({
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-16">
-      <h1 className="text-2xl font-semibold">Your profile</h1>
+      <h1 className="text-2xl font-bold text-navy">Your profile</h1>
 
-      {message && (
-        <p className="rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:bg-blue-950 dark:text-blue-200">
-          {message}
-        </p>
-      )}
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
+      {message && <InfoAlert>{message}</InfoAlert>}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
 
-      <form action={updateProfile} className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          Full name
-          <input
-            name="fullName"
-            defaultValue={profile?.full_name ?? ''}
-            required
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Phone
-          <input
-            name="phone"
-            defaultValue={profile?.phone ?? ''}
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Suburb
-          <input
-            name="suburb"
-            defaultValue={profile?.suburb ?? ''}
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          City
-          <input
-            name="city"
-            defaultValue={profile?.city ?? ''}
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Province
-          <input
-            name="province"
-            defaultValue={profile?.province ?? ''}
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <button
-          type="submit"
-          className="rounded-full bg-foreground px-5 py-2 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-        >
-          Save
-        </button>
-      </form>
+      <Card>
+        <form action={updateProfile} className="flex flex-col gap-4">
+          <Field label="Full name">
+            <input name="fullName" defaultValue={profile?.full_name ?? ''} required className={inputClasses} />
+          </Field>
+          <Field label="Phone">
+            <input name="phone" defaultValue={profile?.phone ?? ''} className={inputClasses} />
+          </Field>
+          <Field label="Suburb">
+            <input name="suburb" defaultValue={profile?.suburb ?? ''} className={inputClasses} />
+          </Field>
+          <Field label="City">
+            <input name="city" defaultValue={profile?.city ?? ''} className={inputClasses} />
+          </Field>
+          <Field label="Province">
+            <input name="province" defaultValue={profile?.province ?? ''} className={inputClasses} />
+          </Field>
+          <Button type="submit">Save</Button>
+        </form>
+      </Card>
 
-      <div className="flex flex-col gap-2 border-t border-black/10 pt-6 dark:border-white/20">
-        <h2 className="text-lg font-medium">Your provider listings</h2>
+      <div className="flex flex-col gap-3 border-t border-border pt-6">
+        <h2 className="text-lg font-semibold text-navy">Your provider listings</h2>
         {providers && providers.length > 0 ? (
           <ul className="flex flex-col gap-4 text-sm">
             {providers.map((p) => (
               <li key={p.id} className="flex flex-col gap-2">
-                <span>{p.display_name}</span>
+                <span className="font-medium text-navy">{p.display_name}</span>
                 {p.paystack_recipient_code ? (
-                  <span className="text-zinc-600 dark:text-zinc-400">Payout account on file</span>
+                  <span className="text-slate">Payout account on file</span>
                 ) : (
-                  <form action="/api/payouts/recipients" method="POST" className="flex flex-col gap-2 rounded-md border border-black/10 p-3 dark:border-white/20">
+                  <Card as="form" action="/api/payouts/recipients" method="POST" className="flex flex-col gap-2 p-3">
                     <input type="hidden" name="providerId" value={p.id} />
-                    <label className="flex flex-col gap-1">
-                      Account holder name
-                      <input name="accountName" required className="rounded-md border border-black/10 px-2 py-1 dark:border-white/20" />
-                    </label>
-                    <label className="flex flex-col gap-1">
-                      Bank account number
-                      <input name="accountNumber" required className="rounded-md border border-black/10 px-2 py-1 dark:border-white/20" />
-                    </label>
-                    <label className="flex flex-col gap-1">
-                      Bank code (Paystack)
-                      <input name="bankCode" required className="rounded-md border border-black/10 px-2 py-1 dark:border-white/20" />
-                    </label>
-                    <button type="submit" className="w-fit rounded-full bg-foreground px-3 py-1 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]">
+                    <Field label="Account holder name">
+                      <input name="accountName" required className={inputClasses} />
+                    </Field>
+                    <Field label="Bank account number">
+                      <input name="accountNumber" required className={inputClasses} />
+                    </Field>
+                    <Field label="Bank code (Paystack)">
+                      <input name="bankCode" required className={inputClasses} />
+                    </Field>
+                    <Button type="submit" className="w-fit px-4 py-1.5 text-xs">
                       Save payout details
-                    </button>
-                  </form>
+                    </Button>
+                  </Card>
                 )}
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            You don&apos;t have a provider listing yet.
-          </p>
+          <p className="text-sm text-slate">You don&apos;t have a provider listing yet.</p>
         )}
-        <Link href="/providers/new" className="text-sm font-medium underline">
+        <Link href="/providers/new" className="text-sm font-medium text-brand-500 hover:underline">
           Become a provider
         </Link>
       </div>

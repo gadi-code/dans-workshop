@@ -3,6 +3,10 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { sendFriendRequest, respondToFriendRequest } from '@/app/actions/friends'
 import { one } from '@/utils/one'
+import Card from '@/components/ui/Card'
+import Field, { inputClasses } from '@/components/ui/Field'
+import Button from '@/components/ui/Button'
+import { ErrorAlert, InfoAlert } from '@/components/ui/Alert'
 
 export default async function FriendsPage({
   searchParams,
@@ -37,90 +41,75 @@ export default async function FriendsPage({
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-8 px-6 py-12">
-      <h1 className="text-2xl font-semibold">Friends</h1>
+      <h1 className="text-2xl font-bold text-navy">Friends</h1>
 
-      {message && (
-        <p className="rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:bg-blue-950 dark:text-blue-200">
-          {message}
-        </p>
-      )}
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
+      {message && <InfoAlert>{message}</InfoAlert>}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
 
-      <form action={sendFriendRequest} className="flex flex-col gap-2">
-        <label className="flex flex-col gap-1 text-sm">
-          Add a friend by email
-          <input
-            name="email"
-            type="email"
-            required
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <button
-          type="submit"
-          className="w-fit rounded-full bg-foreground px-4 py-1.5 text-sm text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-        >
-          Send request
-        </button>
-      </form>
+      <Card>
+        <form action={sendFriendRequest} className="flex flex-col gap-2">
+          <Field label="Add a friend by email">
+            <input name="email" type="email" required className={inputClasses} />
+          </Field>
+          <Button type="submit" className="w-fit px-4 py-1.5 text-xs">
+            Send request
+          </Button>
+        </form>
+      </Card>
 
       {incoming.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Requests</h2>
+          <h2 className="text-lg font-semibold text-navy">Requests</h2>
           {incoming.map((f) => (
-            <div key={f.id} className="flex items-center justify-between rounded-lg border border-black/10 p-3 dark:border-white/20">
-              <span className="text-sm">{nameOf(f, f.requester_id)}</span>
-              <div className="flex gap-2">
+            <Card key={f.id} className="flex items-center justify-between">
+              <span className="text-sm text-navy">{nameOf(f, f.requester_id)}</span>
+              <div className="flex gap-3">
                 <form action={respondToFriendRequest}>
                   <input type="hidden" name="friendshipId" value={f.id} />
                   <input type="hidden" name="action" value="accept" />
-                  <button type="submit" className="text-sm font-medium underline">Accept</button>
+                  <button type="submit" className="text-sm font-medium text-brand-500 hover:underline">Accept</button>
                 </form>
                 <form action={respondToFriendRequest}>
                   <input type="hidden" name="friendshipId" value={f.id} />
                   <input type="hidden" name="action" value="decline" />
-                  <button type="submit" className="text-sm underline">Decline</button>
+                  <button type="submit" className="text-sm text-slate hover:underline">Decline</button>
                 </form>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}
 
       {outgoing.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h2 className="text-lg font-medium">Sent requests</h2>
+          <h2 className="text-lg font-semibold text-navy">Sent requests</h2>
           {outgoing.map((f) => (
-            <div key={f.id} className="flex items-center justify-between rounded-lg border border-black/10 p-3 dark:border-white/20">
-              <span className="text-sm">{nameOf(f, f.addressee_id)}</span>
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">Pending</span>
-            </div>
+            <Card key={f.id} className="flex items-center justify-between">
+              <span className="text-sm text-navy">{nameOf(f, f.addressee_id)}</span>
+              <span className="text-sm text-slate">Pending</span>
+            </Card>
           ))}
         </div>
       )}
 
       <div className="flex flex-col gap-2">
-        <h2 className="text-lg font-medium">Your friends</h2>
+        <h2 className="text-lg font-semibold text-navy">Your friends</h2>
         {accepted.length > 0 ? (
           accepted.map((f) => {
             const otherId = f.requester_id === user.id ? f.addressee_id : f.requester_id
             return (
-              <div key={f.id} className="flex items-center justify-between rounded-lg border border-black/10 p-3 dark:border-white/20">
-                <span className="text-sm">{nameOf(f, otherId)}</span>
+              <Card key={f.id} className="flex items-center justify-between">
+                <span className="text-sm text-navy">{nameOf(f, otherId)}</span>
                 <form action={respondToFriendRequest}>
                   <input type="hidden" name="friendshipId" value={f.id} />
                   <input type="hidden" name="action" value="remove" />
-                  <button type="submit" className="text-sm underline">Remove</button>
+                  <button type="submit" className="text-sm text-slate hover:underline">Remove</button>
                 </form>
-              </div>
+              </Card>
             )
           })
         ) : (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">No friends yet.</p>
+          <p className="text-sm text-slate">No friends yet.</p>
         )}
       </div>
     </div>

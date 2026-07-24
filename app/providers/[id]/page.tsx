@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { createClient } from '@/utils/supabase/server'
 import { one } from '@/utils/one'
+import Badge from '@/components/ui/Badge'
+import { SuccessAlert } from '@/components/ui/Alert'
+import { buttonClasses } from '@/components/ui/Button'
 
 export default async function ProviderProfilePage({
   params,
@@ -39,41 +42,31 @@ export default async function ProviderProfilePage({
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-12">
       <div>
-        <h1 className="text-2xl font-semibold">{provider.display_name}</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <h1 className="text-2xl font-bold text-navy">{provider.display_name}</h1>
+        <p className="text-sm text-slate">
           {provider.provider_type === 'company' ? 'Company' : 'Individual'}
           {provider.city ? ` · ${provider.city}` : ''}
         </p>
       </div>
 
-      {provider.description && <p>{provider.description}</p>}
+      {provider.description && <p className="text-slate">{provider.description}</p>}
 
       {provider.provider_categories && provider.provider_categories.length > 0 && (
-        <div className="flex flex-wrap gap-2 text-sm">
+        <div className="flex flex-wrap gap-2">
           {provider.provider_categories.map((pc, i) => {
             const name = one(pc.service_categories as unknown as { name: string } | { name: string }[] | null)?.name
-            return (
-              <span
-                key={i}
-                className="rounded-full border border-black/10 px-3 py-1 dark:border-white/20"
-              >
-                {name}
-              </span>
-            )
+            return <Badge key={i}>{name}</Badge>
           })}
         </div>
       )}
 
       {friends.length > 0 && (
-        <div className="rounded-md bg-green-50 px-4 py-3 text-sm text-green-800 dark:bg-green-950 dark:text-green-200">
+        <SuccessAlert>
           Used by {friends.length} of your friends, including {friends[0].friend_name}
-        </div>
+        </SuccessAlert>
       )}
 
-      <Link
-        href={`/quotes/new?provider=${provider.id}`}
-        className="w-fit rounded-full bg-foreground px-6 py-3 font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-      >
+      <Link href={`/quotes/new?provider=${provider.id}`} className={buttonClasses('primary', 'w-fit px-8 py-3.5 text-base')}>
         Request a quote
       </Link>
     </div>

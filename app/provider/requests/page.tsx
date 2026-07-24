@@ -3,6 +3,10 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { submitQuote } from '@/app/actions/quotes'
 import { one } from '@/utils/one'
+import Card from '@/components/ui/Card'
+import Field, { inputClasses } from '@/components/ui/Field'
+import Button from '@/components/ui/Button'
+import { ErrorAlert, InfoAlert } from '@/components/ui/Alert'
 
 export default async function ProviderRequestsPage({
   searchParams,
@@ -40,18 +44,10 @@ export default async function ProviderRequestsPage({
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-12">
-      <h1 className="text-2xl font-semibold">Incoming requests</h1>
+      <h1 className="text-2xl font-bold text-navy">Incoming requests</h1>
 
-      {message && (
-        <p className="rounded-md bg-blue-50 px-3 py-2 text-sm text-blue-800 dark:bg-blue-950 dark:text-blue-200">
-          {message}
-        </p>
-      )}
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
+      {message && <InfoAlert>{message}</InfoAlert>}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
 
       {invites && invites.length > 0 ? (
         <ul className="flex flex-col gap-4">
@@ -74,56 +70,45 @@ export default async function ProviderRequestsPage({
             )
 
             return (
-              <li key={i} className="rounded-lg border border-black/10 p-4 dark:border-white/20">
-                <p className="font-medium">{categoryName}</p>
-                <p className="text-sm">{req.description}</p>
-                <p className="text-sm text-zinc-600 dark:text-zinc-400">Request status: {req.status}</p>
+              <Card as="li" key={i}>
+                <p className="font-semibold text-navy">{categoryName}</p>
+                <p className="text-sm text-slate">{req.description}</p>
+                <p className="text-sm text-slate">Request status: {req.status}</p>
 
                 {myQuote ? (
-                  <p className="mt-2 text-sm font-medium">
+                  <p className="mt-2 text-sm font-medium text-navy">
                     Your quote: {myQuote.status}
                   </p>
                 ) : req.status === 'open' ? (
                   <form action={submitQuote} className="mt-3 flex flex-col gap-2">
                     <input type="hidden" name="quoteRequestId" value={req.id} />
                     <input type="hidden" name="providerId" value={invite.provider_id} />
-                    <label className="flex flex-col gap-1 text-sm">
-                      Price (ZAR)
+                    <Field label="Price (ZAR)">
                       <input
                         name="price"
                         type="number"
                         min="1"
                         step="0.01"
                         required
-                        className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
+                        className={inputClasses}
                       />
-                    </label>
-                    <label className="flex flex-col gap-1 text-sm">
-                      Message
-                      <textarea
-                        name="message"
-                        rows={2}
-                        className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-                      />
-                    </label>
-                    <button
-                      type="submit"
-                      className="w-fit rounded-full bg-foreground px-4 py-1.5 text-sm text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-                    >
+                    </Field>
+                    <Field label="Message">
+                      <textarea name="message" rows={2} className={inputClasses} />
+                    </Field>
+                    <Button type="submit" className="w-fit px-4 py-1.5 text-xs">
                       Submit quote
-                    </button>
+                    </Button>
                   </form>
                 ) : (
-                  <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                    This request is no longer open.
-                  </p>
+                  <p className="mt-2 text-sm text-slate">This request is no longer open.</p>
                 )}
-              </li>
+              </Card>
             )
           })}
         </ul>
       ) : (
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">No incoming requests yet.</p>
+        <p className="text-sm text-slate">No incoming requests yet.</p>
       )}
     </div>
   )

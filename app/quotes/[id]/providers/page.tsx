@@ -2,6 +2,9 @@ import { cookies } from 'next/headers'
 import { redirect, notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { selectProviders } from '@/app/actions/quotes'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
+import { ErrorAlert } from '@/components/ui/Alert'
 
 export default async function SelectProvidersPage({
   params,
@@ -41,46 +44,37 @@ export default async function SelectProvidersPage({
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-16">
-      <h1 className="text-2xl font-semibold">Choose providers</h1>
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">{request.description}</p>
+      <h1 className="text-2xl font-bold text-navy">Choose providers</h1>
+      <p className="text-sm text-slate">{request.description}</p>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
 
-      <form action={selectProviders} className="flex flex-col gap-4">
-        <input type="hidden" name="quoteRequestId" value={request.id} />
+      <Card>
+        <form action={selectProviders} className="flex flex-col gap-4">
+          <input type="hidden" name="quoteRequestId" value={request.id} />
 
-        {providers && providers.length > 0 ? (
-          <fieldset className="flex flex-col gap-2 text-sm">
-            {providers.map((p) => (
-              <label key={p.id} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="providerIds"
-                  value={p.id}
-                  defaultChecked={p.id === preselected}
-                />
-                {p.display_name}
-                {p.city ? ` · ${p.city}` : ''}
-              </label>
-            ))}
-          </fieldset>
-        ) : (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            No providers found for this category yet.
-          </p>
-        )}
+          {providers && providers.length > 0 ? (
+            <fieldset className="flex flex-col gap-2 text-sm">
+              {providers.map((p) => (
+                <label key={p.id} className="flex items-center gap-2 text-navy">
+                  <input
+                    type="checkbox"
+                    name="providerIds"
+                    value={p.id}
+                    defaultChecked={p.id === preselected}
+                  />
+                  {p.display_name}
+                  {p.city ? ` · ${p.city}` : ''}
+                </label>
+              ))}
+            </fieldset>
+          ) : (
+            <p className="text-sm text-slate">No providers found for this category yet.</p>
+          )}
 
-        <button
-          type="submit"
-          className="rounded-full bg-foreground px-5 py-2 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-        >
-          Send request
-        </button>
-      </form>
+          <Button type="submit">Send request</Button>
+        </form>
+      </Card>
     </div>
   )
 }

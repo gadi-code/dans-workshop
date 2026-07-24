@@ -2,6 +2,10 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import { createProvider } from '@/app/actions/providers'
+import Card from '@/components/ui/Card'
+import Field, { inputClasses } from '@/components/ui/Field'
+import Button from '@/components/ui/Button'
+import { ErrorAlert } from '@/components/ui/Alert'
 
 export default async function NewProviderPage({
   searchParams,
@@ -28,92 +32,59 @@ export default async function NewProviderPage({
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col gap-6 px-4 py-16">
-      <h1 className="text-2xl font-semibold">Become a provider</h1>
+      <h1 className="text-2xl font-bold text-navy">Become a provider</h1>
 
-      {error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
-        </p>
-      )}
+      {error && <ErrorAlert>{error}</ErrorAlert>}
 
-      <form action={createProvider} className="flex flex-col gap-4">
-        <fieldset className="flex flex-col gap-1 text-sm">
-          <legend className="mb-1">I am a...</legend>
-          <label className="flex items-center gap-2">
-            <input type="radio" name="providerType" value="individual" defaultChecked required />
-            Individual / freelancer
-          </label>
-          <label className="flex items-center gap-2">
-            <input type="radio" name="providerType" value="company" required />
-            Company
-          </label>
-        </fieldset>
-
-        <label className="flex flex-col gap-1 text-sm">
-          Display name
-          <input
-            name="displayName"
-            required
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm">
-          Description
-          <textarea
-            name="description"
-            rows={3}
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm">
-          Phone
-          <input
-            name="phone"
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm">
-          Suburb
-          <input
-            name="suburb"
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          City
-          <input
-            name="city"
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          Province
-          <input
-            name="province"
-            className="rounded-md border border-black/10 px-3 py-2 dark:border-white/20"
-          />
-        </label>
-
-        <fieldset className="flex flex-col gap-1 text-sm">
-          <legend className="mb-1">Services offered</legend>
-          {categories?.map((category) => (
-            <label key={category.id} className="flex items-center gap-2">
-              <input type="checkbox" name="categoryIds" value={category.id} />
-              {category.name}
+      <Card>
+        <form action={createProvider} className="flex flex-col gap-4">
+          <fieldset className="flex flex-col gap-1 text-sm">
+            <legend className="mb-1 font-medium text-navy">I am a...</legend>
+            <label className="flex items-center gap-2 text-slate">
+              <input type="radio" name="providerType" value="individual" defaultChecked required />
+              Individual / freelancer
             </label>
-          ))}
-        </fieldset>
+            <label className="flex items-center gap-2 text-slate">
+              <input type="radio" name="providerType" value="company" required />
+              Company
+            </label>
+          </fieldset>
 
-        <button
-          type="submit"
-          className="rounded-full bg-foreground px-5 py-2 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
-        >
-          Create listing
-        </button>
-      </form>
+          <Field label="Display name">
+            <input name="displayName" required className={inputClasses} />
+          </Field>
+
+          <Field label="Description">
+            <textarea name="description" rows={3} className={inputClasses} />
+          </Field>
+
+          <Field label="Phone">
+            <input name="phone" className={inputClasses} />
+          </Field>
+
+          <Field label="Suburb">
+            <input name="suburb" className={inputClasses} />
+          </Field>
+          <Field label="City">
+            <input name="city" className={inputClasses} />
+          </Field>
+          <Field label="Province">
+            <input name="province" className={inputClasses} />
+          </Field>
+
+          <fieldset className="flex flex-col gap-1 text-sm">
+            <legend className="mb-1 font-medium text-navy">Services offered</legend>
+            {categories?.map((category) => (
+              <label key={category.id} className="flex items-center gap-2 text-slate">
+                <input type="checkbox" name="categoryIds" value={category.id} />
+                {category.name}
+              </label>
+            ))}
+          </fieldset>
+
+          <Button type="submit">Create listing</Button>
+        </form>
+      </Card>
     </div>
   )
 }
